@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.mit.rfiddemo.activity.RfidActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_main">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:id="@+id/activity_rfid_ll_content"
+                android:layout_width="380dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/L20">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="工作模式"
+                        android:textColor="@color/md_white_1000"
+                        android:textSize="@dimen/T20"/>
+
+                    <TextView
+                        android:id="@+id/activity_rfid_tv_serial"
+                        android:layout_width="40dp"
+                        android:layout_height="20dp"
+                        android:layout_marginLeft="@dimen/L30"
+                        android:background="@color/md_white_1000"
+                        android:gravity="center"
+                        android:text="串口"
+                        android:textColor="@color/txt_main"
+                        android:textSize="@dimen/T12"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/activity_rfid_ll_serial"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <include
+                        android:id="@+id/activity_rfid_include_port"
+                        layout="@layout/include_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/L10"/>
+
+                    <include
+                        android:id="@+id/activity_rfid_include_baud"
+                        layout="@layout/include_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="单次阈值"
+                            android:textSize="@dimen/T18"
+                            android:textColor="@color/md_white_1000"/>
+
+                        <EditText
+                            android:id="@+id/activity_rfid_edit_single"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/L10"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:text="XX"
+                            android:textColor="@color/md_white_1000"
+                            android:textSize="@dimen/T15"
+                            android:theme="@style/EditText"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="wrap_content"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="总阈值"
+                            android:textSize="@dimen/T18"
+                            android:textColor="@color/md_white_1000"/>
+
+                        <EditText
+                            android:id="@+id/activity_rfid_edit_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/L10"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:text="XX"
+                            android:textColor="@color/md_white_1000"
+                            android:textSize="@dimen/T15"
+                            android:theme="@style/EditText"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginTop="30dp"
+                    android:text="天线功率设置"
+                    android:textColor="@color/md_white_1000"
+                    android:textSize="@dimen/T20"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/L10"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:text="1"
+                        android:layout_marginLeft="@dimen/L15"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:id="@+id/activity_rfid_edit_no1"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:text=""
+                        android:textColor="@color/md_white_1000"
+                        android:textSize="@dimen/T15"
+                        android:theme="@style/EditText"/>
+
+                    <TextView
+                        android:text="2"
+                        android:layout_marginLeft="@dimen/L15"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:id="@+id/activity_rfid_edit_no2"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:text=""
+                        android:textColor="@color/md_white_1000"
+                        android:textSize="@dimen/T15"
+                        android:theme="@style/EditText"/>
+
+                    <TextView
+                        android:text="3"
+
+                        android:layout_marginLeft="@dimen/L15"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:id="@+id/activity_rfid_edit_no3"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:text=""
+                        android:textColor="@color/md_white_1000"
+                        android:textSize="@dimen/T15"
+                        android:theme="@style/EditText"
+                        tools:ignore="RtlHardcoded,SpUsage" />
+
+                    <TextView
+                        android:text="4"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_marginLeft="@dimen/L15"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:ignore="HardcodedText" />
+
+                    <EditText
+                        android:id="@+id/activity_rfid_edit_no4"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:text=""
+                        android:textColor="@color/md_white_1000"
+                        android:textSize="@dimen/T15"
+                        android:theme="@style/EditText"/>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/activity_rfid_tv_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="@dimen/L30"
+                    android:background="@color/md_white_1000"
+                    android:gravity="center"
+                    android:text="上传配置"
+                    android:textColor="@color/txt_main"
+                    android:textSize="@dimen/T18"/>
+            </LinearLayout>
+        </ScrollView>
+    </RelativeLayout>
+</LinearLayout>
