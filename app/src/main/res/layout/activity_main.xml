@@ -39,6 +39,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:ignore="HardcodedText" />
+        <Button
+            android:id="@+id/clear_inventory"
+            android:text="清除盘点"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <TextView
@@ -48,10 +54,8 @@
         android:layout_height="wrap_content"
         tools:ignore="HardcodedText" />
 
-    <ListView
-        android:id="@+id/epc_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-
+    <TextView
+        android:id="@+id/epc_list_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </LinearLayout>

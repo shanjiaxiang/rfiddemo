@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.mit.rfiddemo.R;
 import com.mit.rfiddemo.constants.Constants;
@@ -30,7 +31,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import ruijie.com.uhflib.uhf.InventoryData;
 
@@ -40,19 +46,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button connectTest;
     private Button startInventory;
     private Button stopInventory;
+    private Button clearInventory;
     private SerialPort mSerialPort;
     private Status status = Status.DISCONNECT;
-    private ArrayList<String> epcList = new ArrayList <>();
+    HashMap<String, Integer> epcMap = new HashMap <>();
     private InventoryData[] inventoryData;
-    private ListView listView;
+    private TextView epcList;
     LinkInter mLinker;
     String TAG = "RFID_LOG";
+    String dispTmp;
+    Timer timer;
+    private Boolean isDisplayInfo = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         XLog.enableLogging();
+        //开始计时
+        startTiming(2000);
         findMyViewById();
         setStartInventory();
     }
@@ -81,47 +93,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         connectTest = (Button) findViewById(R.id.connect_test_button);
         startInventory = (Button) findViewById(R.id.start_inventory);
         stopInventory = (Button) findViewById(R.id.stop_inventory);
-        listView = (ListView)findViewById(R.id.epc_list);
+        epcList = (TextView) findViewById(R.id.epc_list_tv);
+        clearInventory = (Button)findViewById(R.id.clear_inventory);
 
         configureRFID.setOnClickListener(this);
         connectTest.setOnClickListener(this);
         startInventory.setOnClickListener(this);
         stopInventory.setOnClickListener(this);
-
-
+        clearInventory.setOnClickListener(this);
     }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.configure_rfid:
                 Intent intent = new Intent(MainActivity.this, RfidActivity.class);
+                epcMap.clear();
                 startActivity(intent);
                 break;
             case R.id.connect_test_button:
                 String tempPort = Preferences.getInstance().getReaderPort();
                 String tempBaud =Preferences.getInstance().getReaderBaud();
-
                 XLog.d(TAG,"串口号: "+ tempPort + ";波特率:" +tempBaud);
                 connect(tempPort,  Integer.parseInt(tempBaud));
                 break;
             case R.id.start_inventory:
                 setStartInventory();
-                displayEpcInfo();
                 break;
             case R.id.stop_inventory:
                 setStopInventory();
                 break;
-        }
-    }
-
-    private void startService(){
-        if (!StringUtils.isEmpty(Preferences.getInstance().getReaderPort())
-                && !StringUtils.isEmpty(Preferences.getInstance().getReaderBaud())){
-            if (!XAppUtils.isServiceRunning(this, ReaderService.class.getName())){
-                Intent intent = new Intent(this, ReaderService.class);
-                intent.putExtra(Constants.Extra.EXTRA_READER_TO_START, true);
-                startService(intent);
-            }
+            case R.id.clear_inventory:
+                setClearCountNum();
+                break;
+            default:
+                break;
         }
     }
 
@@ -138,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //获取RFID模组
         mLinker = LinkManage.getInstance(LinkManage.TYPE_HANDSET);
         if (mLinker == null){
-            XToast.showToast("获取RFID模组失败，未知错误");
+            XLog.d(TAG, "获取RFID模组失败，未知错误");
         }
         XLog.d(TAG, "获取RFID模组");
         //RFID模组初始化
@@ -150,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             XLog.d(TAG,"连接成功");
         }
     }
+
     private void setStartInventory(){
         String address = Preferences.getInstance().getReaderPort();
         int baud =  Integer.parseInt(Preferences.getInstance().getReaderBaud());
@@ -158,28 +165,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mLinker == null){
             connect(address, baud);
         }
-        int power1 = Integer.parseInt(Preferences.getInstance().getReaderPower1());
-        int power2 = Integer.parseInt(Preferences.getInstance().getReaderPower2());
-        int power3 = Integer.parseInt(Preferences.getInstance().getReaderPower3());
-        int power4 = Integer.parseInt(Preferences.getInstance().getReaderPower4());
-
-        XLog.d(TAG, "ant0: " + power1);
-        XLog.d(TAG, "ant1: " + power2);
-        XLog.d(TAG, "ant2: " + power3);
-        XLog.d(TAG, "ant3: " + power4);
-
+        int power1;
+        int power2;
+        int power3;
+        int power4;
+//        power1 = Integer.parseInt(Preferences.getInstance().getReaderPower1());
+//        power2 = Integer.parseInt(Preferences.getInstance().getReaderPower2());
+//        power3 = Integer.parseInt(Preferences.getInstance().getReaderPower3());
+//        power4 = Integer.parseInt(Preferences.getInstance().getReaderPower4());
+//
+//        XLog.d(TAG, "ant0: " + power1);
+//        XLog.d(TAG, "ant1: " + power2);
+//        XLog.d(TAG, "ant2: " + power3);
+//        XLog.d(TAG, "ant3: " + power4);
 
         power1 = 300;
         power2 = 300;
         power3 = 300;
         power4 = 300;
 
-
-        mLinker.enableAnt(0, power1, 2000);
-        mLinker.enableAnt(1, power2, 2000);
-        mLinker.enableAnt(2, power3, 2000);
-        mLinker.enableAnt(3, power4, 2000);
-
+        mLinker.enableAnt(0, power1, 20);
+        mLinker.enableAnt(1, power2, 20);
+        mLinker.enableAnt(2, power3, 20);
+        mLinker.enableAnt(3, power4, 20);
 
         mLinker.setCallbackHandler(handler);
         startNewThreadInventory();
@@ -191,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 XLog.d(TAG, "开始盘点");
                 mLinker.startInventory();
-
             }
         }).start();
     }
@@ -203,8 +210,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mLinker.getIsInventoryRunning())
                 {
                     if (mLinker.stopInventory()){
-                        XToast.showToast("已停止盘存");
-
+                        XLog.d(TAG, "已停止盘存");
+                        //timer.cancel();
                     }
                 }
 
@@ -228,15 +235,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }else {
                             displayEpcInfo();
                         }
-
-//                        inventoryData = (InventoryData[]) msg.obj;
-////                        XLog.d(TAG, "data length: " + inventoryData.length);
-//                        for (int i = 0; i<inventoryData.length; i++){
-//                            epcList.add(new String(inventoryData[i].epc));
-//                            XLog.d(TAG, "EPC num: " + i + " " + new String(inventoryData[i].epc));
-//                        }
-//                        displayEpcInfo();
-                        //startNewThreadInventory();
                         break;
                     default:
                         break;
@@ -249,17 +247,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void displayEpcInfo(){
-        if (epcList.size() > 0){
-            epcList.clear();
-        }
+
         String stemp = null;
         for (int i = 0; i<inventoryData.length; i++){
             stemp = inventoryData[i].getEpc();
-            epcList.add(stemp);
+            if (epcMap.containsKey(stemp)){
+                epcMap.put(stemp, epcMap.get(stemp) + 1);
+            }else {
+                epcMap.put(stemp, 1);
+            }
             XLog.d(TAG, "EPC num: " + i + " " + stemp);
         }
+        if (isDisplayInfo){
+            dispTmp = "";
+            for (String key : epcMap.keySet()){
+                dispTmp = dispTmp + key + "\t" + epcMap.get(key) + "\n";
+            }
+            epcList.setText("");
+            epcList.setText(dispTmp);
+            isDisplayInfo = false;
+        }
+    }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter <String>(MainActivity.this, android.R.layout.simple_list_item_1, epcList);
-        listView.setAdapter(adapter);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        setStopInventory();
+    }
+
+    //定时任务两秒显示一次数据
+    private void startTiming(int intevalPeriod){
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                isDisplayInfo = true;
+                XLog.d(TAG,"timer task is execute...");
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        dispTmp = "";
+//                        for (String key : epcMap.keySet()){
+//                            dispTmp = dispTmp + key + "\t" + epcMap.get(key) + "\n";
+//                        }
+//                        epcList.setText("");
+//                        epcList.setText(dispTmp);
+//                    }
+//                });
+            }
+        };
+        timer = new Timer();
+        long delay = 0;
+        // schedules the task to be run in an interval
+        timer.scheduleAtFixedRate(task, delay, intevalPeriod);
+        XLog.d(TAG,"timer is start timing...");
+    }
+
+    //清空当前盘存数据
+    private void setClearCountNum(){
+        setStopInventory();
+        epcMap.clear();
+        inventoryData = null;
+        XLog.d(TAG, "已停止盘存");
+        XLog.d(TAG, "已清空epcMap");
+        //setStartInventory();
+        epcList.setText("");
+        isDisplayInfo = false;
     }
 }
