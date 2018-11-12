@@ -1,6 +1,5 @@
 package com.mit.rfiddemo.activity;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Handler;
@@ -8,33 +7,21 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mit.rfiddemo.R;
-import com.mit.rfiddemo.constants.Constants;
+
 import com.mit.rfiddemo.entity.Preferences;
 import com.mit.rfiddemo.serialport.SerialPort;
-import com.mit.rfiddemo.service.ReaderService;
-import com.mit.rfiddemo.util.StringUtils;
-import com.mit.rfiddemo.util.XAppUtils;
+
 import com.mit.rfiddemo.util.XLog;
 import com.mit.rfiddemo.util.XToast;
 import com.ruijie.uhflib.power.manage.PowerManage;
 import com.ruijie.uhflib.uhf.LinkInter;
 import com.ruijie.uhflib.uhf.manage.LinkManage;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -50,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SerialPort mSerialPort;
     private Status status = Status.DISCONNECT;
     HashMap<String, Integer> epcMap = new HashMap <>();
+    HashMap<String, Integer> epcMapTotal = new HashMap <>();
     private InventoryData[] inventoryData;
     private TextView epcList;
     LinkInter mLinker;
@@ -256,15 +244,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else {
                 epcMap.put(stemp, 1);
             }
+            if (epcMapTotal.containsKey(stemp)){
+                epcMapTotal.put(stemp, epcMapTotal.get(stemp) + 1);
+            }else {
+                epcMapTotal.put(stemp, 1);
+            }
             XLog.d(TAG, "EPC num: " + i + " " + stemp);
         }
         if (isDisplayInfo){
             dispTmp = "";
-            for (String key : epcMap.keySet()){
-                dispTmp = dispTmp + key + "\t" + epcMap.get(key) + "\n";
+            for (String key : epcMapTotal.keySet()){
+                if (!epcMap.containsKey(key))
+                    epcMap.put(key, 0);
+                dispTmp = dispTmp + key + "\t\t\t\t" + epcMap.get(key) + "\t\t\t\t" + epcMapTotal.get(key) + "\n";
             }
             epcList.setText("");
             epcList.setText(dispTmp);
+            epcMap.clear();
             isDisplayInfo = false;
         }
     }
@@ -282,17 +278,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 isDisplayInfo = true;
                 XLog.d(TAG,"timer task is execute...");
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        dispTmp = "";
-//                        for (String key : epcMap.keySet()){
-//                            dispTmp = dispTmp + key + "\t" + epcMap.get(key) + "\n";
-//                        }
-//                        epcList.setText("");
-//                        epcList.setText(dispTmp);
-//                    }
-//                });
             }
         };
         timer = new Timer();
@@ -306,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setClearCountNum(){
         setStopInventory();
         epcMap.clear();
+        epcMapTotal.clear();
         inventoryData = null;
         XLog.d(TAG, "已停止盘存");
         XLog.d(TAG, "已清空epcMap");
